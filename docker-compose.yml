@@ -1,0 +1,30 @@
+version: "3.7"
+services:
+  database:
+    image: "postgres:alpine"
+    environment:
+      POSTGRES_PASSWORD: "docker"
+    volumes:
+      - type: "volume"
+        source: "postgres"
+        target: "/var/lib/postgresql/data"
+    expose:
+      - "5432"
+  backend:
+    image: "timleachsw/loki-backend"
+    environment:
+      DATABASE_URL: "postgres://postgres:docker@database:5432"
+    ports:
+      - "5000:5000"
+    depends_on:
+      - "database"
+  frontend:
+    image: "timleachsw/loki-frontend"
+    environment:
+      REACT_APP_BACKEND_URL: "http://localhost:5000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - "backend"
+volumes:
+  postgres:
